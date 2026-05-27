@@ -19,6 +19,20 @@ export default function FarmerLedger() {
     language 
   } = useLedgerStore();
 
+  const getStatusLabel = (status: string) => {
+    const cleanStatus = (status || '').toUpperCase();
+    if (cleanStatus === 'PAID') {
+      return language === 'hindi' ? 'चुक्ता' : language === 'hinglish' ? 'Paid' : 'Paid';
+    }
+    if (cleanStatus === 'PARTIAL') {
+      return language === 'hindi' ? 'आंशिक' : language === 'hinglish' ? 'Partial' : 'Partial';
+    }
+    if (cleanStatus === 'RECEIVED') {
+      return language === 'hindi' ? 'प्राप्त' : language === 'hinglish' ? 'Received' : 'Received';
+    }
+    return language === 'hindi' ? 'बकाया' : language === 'hinglish' ? 'Pending' : 'Pending';
+  };
+
   const t = translations[language];
 
   // Retrieve farmer details
@@ -122,14 +136,18 @@ export default function FarmerLedger() {
       {/* Timeline entries list */}
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.sectionHeading}>
-          {language === 'english' ? 'Diary Timeline' : 'Bahi Khata Diary'}
+          {language === 'hindi' ? 'बही खाता डायरी' : language === 'hinglish' ? 'Bahi Khata Diary' : 'Diary Timeline'}
         </Text>
         
         {combinedTimeline.length === 0 ? (
           <View style={styles.emptyCard}>
             <Text style={styles.emptyIconText}>📝</Text>
-            <Text style={styles.emptyTitle}>Koi entry nahi hai.</Text>
-            <Text style={styles.emptyDesc}>Pehli entry jodne ke liye bottom navigation par add entry click karein.</Text>
+            <Text style={styles.emptyTitle}>
+              {language === 'hindi' ? 'कोई एंट्री नहीं है।' : language === 'hinglish' ? 'Koi entry nahi hai.' : 'No entries found.'}
+            </Text>
+            <Text style={styles.emptyDesc}>
+              {language === 'hindi' ? 'पहली एंट्री जोड़ने के लिए नीचे दिए गए बटन पर क्लिक करें।' : language === 'hinglish' ? 'Pehli entry jodne ke liye bottom navigation par add entry click karein.' : 'Tap Add Entry in the bottom navigation to get started.'}
+            </Text>
           </View>
         ) : (
           combinedTimeline.map((item) => {
@@ -162,9 +180,13 @@ export default function FarmerLedger() {
                       </Text>
                       
                       <View style={styles.timelineMeta}>
-                        <Text style={styles.timelineMetaText}>Fasal: {t[item.cropName as keyof typeof t] || item.cropName}</Text>
+                        <Text style={styles.timelineMetaText}>
+                          {language === 'hindi' ? 'फसल' : language === 'hinglish' ? 'Fasal' : 'Crop'}: {t[item.cropName as keyof typeof t] || item.cropName}
+                        </Text>
                         <Text style={styles.timelineMetaDivider}>•</Text>
-                        <Text style={styles.timelineMetaText}>Area: {item.area} Bigha</Text>
+                        <Text style={styles.timelineMetaText}>
+                          {language === 'hindi' ? 'क्षेत्रफल' : language === 'hinglish' ? 'Area' : 'Area'}: {item.area} {language === 'hindi' ? 'बीघा' : 'Bigha'}
+                        </Text>
                       </View>
 
                       {item.notes ? (
@@ -176,7 +198,7 @@ export default function FarmerLedger() {
                       <Text style={styles.timelineTitlePayment}>{t.receivePayment}</Text>
                       <View style={styles.timelineMeta}>
                         <Text style={styles.timelineMetaText}>
-                          Type: {t[item.method?.toLowerCase() as keyof typeof t] || item.method}
+                          {language === 'hindi' ? 'भुगतान' : language === 'hinglish' ? 'Type' : 'Type'}: {t[item.method?.toLowerCase() as keyof typeof t] || item.method}
                         </Text>
                       </View>
                       {item.notes ? (
@@ -200,18 +222,22 @@ export default function FarmerLedger() {
                           styles.badgeText, 
                           item.status === 'PAID' ? styles.badgeTextPaid : item.status === 'PARTIAL' ? styles.badgeTextPartial : styles.badgeTextPending
                         ]}>
-                          {item.status || 'PENDING'}
+                          {getStatusLabel(item.status)}
                         </Text>
                       </View>
                       {item.status !== 'PAID' && item.remainingAmount < item.totalAmount ? (
-                        <Text style={styles.baakiText}>Baaki: ₹{item.remainingAmount}</Text>
+                        <Text style={styles.baakiText}>
+                          {language === 'hindi' ? 'बकाया' : language === 'hinglish' ? 'Baaki' : 'Remaining'}: ₹{item.remainingAmount}
+                        </Text>
                       ) : null}
                     </View>
                   ) : (
                     <View style={styles.alignEnd}>
                       <Text style={styles.amountTextPayment}>+ ₹{item.amount}</Text>
                       <View style={styles.badgePaid}>
-                        <Text style={[styles.badgeText, styles.badgeTextPaid]}>Jama (Mila)</Text>
+                        <Text style={[styles.badgeText, styles.badgeTextPaid]}>
+                          {language === 'hindi' ? 'जमा (मिला)' : language === 'hinglish' ? 'Jama (Mila)' : 'Collected'}
+                        </Text>
                       </View>
                     </View>
                   )}
@@ -226,7 +252,9 @@ export default function FarmerLedger() {
       <View style={styles.stickyBottom}>
         <View style={styles.metricsRow}>
           <View style={styles.metricItem}>
-            <Text style={styles.metricLabel}>Ab tak Kaam</Text>
+            <Text style={styles.metricLabel}>
+              {language === 'hindi' ? 'कुल कार्य' : language === 'hinglish' ? 'Ab tak Kaam' : 'Total Work'}
+            </Text>
             <Text style={styles.metricVal}>₹{totalCharge}</Text>
           </View>
           <View style={[styles.metricItem, styles.metricBorder]}>
@@ -246,7 +274,9 @@ export default function FarmerLedger() {
           <View style={styles.clearCard}>
             <View style={styles.clearHeader}>
               <Check size={16} color="#16a34a" />
-              <Text style={styles.clearTextHeading}>Sabhi payment clear hain!</Text>
+              <Text style={styles.clearTextHeading}>
+                {language === 'hindi' ? 'सभी भुगतान चुकता हैं!' : language === 'hinglish' ? 'Sabhi payment clear hain!' : 'All payments cleared!'}
+              </Text>
             </View>
             <Text style={styles.advanceLabel}>किसान का अग्रिम (Advance): ₹{advanceAmount}</Text>
           </View>
@@ -266,7 +296,9 @@ export default function FarmerLedger() {
           <View style={styles.clearCard}>
             <View style={styles.clearHeader}>
               <Check size={16} color="#16a34a" />
-              <Text style={styles.clearTextHeading}>Sabhi payment clear hain! No outstanding dues.</Text>
+              <Text style={styles.clearTextHeading}>
+                {language === 'hindi' ? 'सभी भुगतान चुकता हैं! कोई बकाया नहीं है।' : language === 'hinglish' ? 'Sabhi payment clear hain! No outstanding dues.' : 'All payments cleared! No outstanding dues.'}
+              </Text>
             </View>
           </View>
         )}
@@ -284,7 +316,9 @@ export default function FarmerLedger() {
             <View style={styles.modalCard}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>
-                  {selectedTx.type === 'ENTRY' ? 'Service Entry Details' : 'Payment Details'}
+                  {selectedTx.type === 'ENTRY' 
+                    ? (language === 'hindi' ? 'सेवा का विवरण' : 'Service Entry Details') 
+                    : (language === 'hindi' ? 'भुगतान का विवरण' : 'Payment Details')}
                 </Text>
                 <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setSelectedTx(null)}>
                   <X size={18} color="#64748b" />
@@ -292,7 +326,9 @@ export default function FarmerLedger() {
               </View>
 
               <View style={styles.modalDisplayPanel}>
-                <Text style={styles.modalAmtLabel}>Amount</Text>
+                <Text style={styles.modalAmtLabel}>
+                  {language === 'hindi' ? 'कुल राशि' : 'Amount'}
+                </Text>
                 <Text style={[
                   styles.modalAmtVal, 
                   selectedTx.type === 'ENTRY' ? { color: theme.colors.danger } : { color: theme.colors.success }
@@ -308,18 +344,22 @@ export default function FarmerLedger() {
                     styles.badgeText,
                     selectedTx.type === 'ENTRY' && selectedTx.status === 'PAID' ? styles.badgeTextPaid : styles.badgeTextPartial
                   ]}>
-                    {selectedTx.type === 'ENTRY' ? selectedTx.status || 'PENDING' : 'RECEIVED'}
+                    {selectedTx.type === 'ENTRY' ? getStatusLabel(selectedTx.status) : getStatusLabel('RECEIVED')}
                   </Text>
                 </View>
               </View>
 
               <View style={styles.detailsBlock}>
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Farmer (Kisan)</Text>
+                  <Text style={styles.detailLabel}>
+                    {language === 'hindi' ? 'किसान का नाम' : 'Farmer (Kisan)'}
+                  </Text>
                   <Text style={styles.detailVal}>{farmer.name}</Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Date (Taareekh)</Text>
+                  <Text style={styles.detailLabel}>
+                    {language === 'hindi' ? 'तारीख' : 'Date (Taareekh)'}
+                  </Text>
                   <Text style={styles.detailVal}>
                     {new Date(selectedTx.date).toLocaleDateString('en-IN', {
                       day: 'numeric',
@@ -332,41 +372,55 @@ export default function FarmerLedger() {
                 {selectedTx.type === 'ENTRY' ? (
                   <>
                     <View style={styles.detailRow}>
-                      <Text style={styles.detailLabel}>Service (Kaam)</Text>
+                      <Text style={styles.detailLabel}>
+                        {language === 'hindi' ? 'सेवा / काम' : 'Service (Kaam)'}
+                      </Text>
                       <Text style={styles.detailVal}>{t[selectedTx.serviceName as keyof typeof t] || selectedTx.serviceName}</Text>
                     </View>
                     <View style={styles.detailRow}>
-                      <Text style={styles.detailLabel}>Crop (Fasal)</Text>
+                      <Text style={styles.detailLabel}>
+                        {language === 'hindi' ? 'फसल' : 'Crop (Fasal)'}
+                      </Text>
                       <Text style={styles.detailVal}>{t[selectedTx.cropName as keyof typeof t] || selectedTx.cropName}</Text>
                     </View>
                     <View style={styles.detailRow}>
-                      <Text style={styles.detailLabel}>Area (Zameen)</Text>
-                      <Text style={styles.detailVal}>{selectedTx.area} Bigha</Text>
+                      <Text style={styles.detailLabel}>
+                        {language === 'hindi' ? 'रकबा (जमीन)' : 'Area (Zameen)'}
+                      </Text>
+                      <Text style={styles.detailVal}>{selectedTx.area} {language === 'hindi' ? 'बीघा' : 'Bigha'}</Text>
                     </View>
                     <View style={styles.detailRow}>
-                      <Text style={styles.detailLabel}>Rate per Bigha</Text>
+                      <Text style={styles.detailLabel}>
+                        {language === 'hindi' ? 'दर प्रति बीघा' : 'Rate per Bigha'}
+                      </Text>
                       <Text style={styles.detailVal}>₹{selectedTx.ratePerBigha}</Text>
                     </View>
                   </>
                 ) : (
                   <>
                     <View style={styles.detailRow}>
-                      <Text style={styles.detailLabel}>Method (Kaise Mila)</Text>
+                      <Text style={styles.detailLabel}>
+                        {language === 'hindi' ? 'भुगतान प्रकार' : 'Method (Kaise Mila)'}
+                      </Text>
                       <Text style={styles.detailVal}>{t[selectedTx.method?.toLowerCase() as keyof typeof t] || selectedTx.method}</Text>
                     </View>
                   </>
                 )}
 
                 <View style={styles.notesBlock}>
-                  <Text style={styles.notesBlockTitle}>Notes / Khaas baat</Text>
+                  <Text style={styles.notesBlockTitle}>
+                    {language === 'hindi' ? 'विशेष टिप्पणी (खास बात)' : 'Notes / Khaas baat'}
+                  </Text>
                   <Text style={styles.notesBlockDesc}>
-                    {selectedTx.notes ? `"${selectedTx.notes}"` : 'No notes written.'}
+                    {selectedTx.notes ? `"${selectedTx.notes}"` : (language === 'hindi' ? 'कोई नोट नहीं लिखा गया।' : 'No notes written.')}
                   </Text>
                 </View>
               </View>
 
               <TouchableOpacity style={styles.closeModalBtn} onPress={() => setSelectedTx(null)}>
-                <Text style={styles.closeModalText}>Wapas</Text>
+                <Text style={styles.closeModalText}>
+                  {language === 'hindi' ? 'वापस' : language === 'hinglish' ? 'Wapas' : 'Back'}
+                </Text>
               </TouchableOpacity>
             </View>
           ) : null}
