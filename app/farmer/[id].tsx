@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Linking, Alert, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking, Alert, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useLedgerStore } from '../../lib/store';
 import { translations } from '../../lib/translations';
@@ -78,14 +79,8 @@ export default function FarmerLedger() {
     const phoneStr = farmer.phone ? farmer.phone.trim() : '';
     const cleanPhone = phoneStr.replace(/\D/g, '');
     const formattedPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
-    const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(messageText)}`;
-    
-    Linking.canOpenURL(whatsappUrl).then(supported => {
-      if (supported) {
-        Linking.openURL(whatsappUrl);
-      } else {
-        Alert.alert("WhatsApp not installed", "Cannot open WhatsApp link on this device.");
-      }
+    Linking.openURL(whatsappUrl).catch(() => {
+      Alert.alert("Error", "Cannot open WhatsApp link on this device.");
     });
   };
 
