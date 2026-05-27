@@ -11,9 +11,7 @@ import {
 import { allocatePaymentFIFO, reconstructLedgerFIFO } from './fifo';
 import { Language } from './translations';
 
-// Use the local development server URL when testing on a physical device.
-// Since the backend is running on the computer, replace localhost with the machine's local IP.
-const BACKEND_URL = 'http://192.168.1.13:4000';
+const BACKEND_URL = 'https://farmmitra-ysq7.onrender.com';
 
 export interface UserSession {
   id: string;
